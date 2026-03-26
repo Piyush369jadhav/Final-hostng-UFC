@@ -223,7 +223,7 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Expanded Content: Fighter Images */}
+                    {/* Expanded Content: Fighter Details */}
                     <AnimatePresence>
                       {isExpanded && event.fighters && (
                         <motion.div
@@ -232,39 +232,47 @@ export default function App() {
                           exit={{ height: 0, opacity: 0 }}
                           className="mt-8 pt-8 border-t border-zinc-800 overflow-hidden"
                         >
-                          <div className="grid grid-cols-2 gap-4 md:gap-8">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
                             {event.fighters.map((fighter, fIndex) => (
-                              <div key={fighter.name + fIndex} className="flex flex-col items-center gap-3">
-                                <div className="relative w-full aspect-[3/4] rounded-2xl bg-zinc-800 overflow-hidden border border-zinc-700 flex items-center justify-center">
-                                  {fighter.imageUrl ? (
-                                    <img 
-                                      src={fighter.imageUrl} 
-                                      alt={fighter.name}
-                                      referrerPolicy="no-referrer"
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        const parent = (e.target as HTMLImageElement).parentElement;
-                                        if (parent) {
-                                          parent.innerHTML = '<div class="text-zinc-600 text-[10px] font-mono uppercase">No image found</div>';
-                                        }
-                                      }}
-                                    />
-                                  ) : (
-                                    <div className="text-zinc-600 text-[10px] font-mono uppercase">No image found</div>
-                                  )}
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                                  <div className="absolute bottom-3 left-3 right-3 text-center">
-                                    <p className="text-xs font-bold uppercase tracking-tighter truncate">{fighter.name}</p>
+                              <div key={fighter.name + fIndex} className="bg-zinc-800/30 p-6 rounded-2xl border border-zinc-700/50">
+                                <div className="flex justify-between items-start mb-4">
+                                  <div>
+                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Fighter</p>
+                                    <h3 className="text-xl font-bold text-white">{fighter.name}</h3>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Weight Class</p>
+                                    <p className="text-sm font-medium text-zinc-300">{fighter.weightClass}</p>
                                   </div>
                                 </div>
-                                <div className="text-center">
-                                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Record</p>
-                                  <p className="text-sm font-mono font-bold text-red-500">{fighter.record}</p>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="bg-zinc-900/50 p-3 rounded-xl border border-zinc-800">
+                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Record</p>
+                                    <p className="text-lg font-mono font-bold text-red-500">{fighter.record}</p>
+                                  </div>
+                                  <div className="bg-zinc-900/50 p-3 rounded-xl border border-zinc-800">
+                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Last 5</p>
+                                    <div className="flex gap-1 mt-1">
+                                      {fighter.lastFive.split('-').map((status, sIndex) => (
+                                        <span 
+                                          key={sIndex}
+                                          className={`w-5 h-5 flex items-center justify-center rounded text-[10px] font-bold ${
+                                            status === 'W' ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 
+                                            status === 'L' ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 
+                                            'bg-zinc-500/20 text-zinc-500 border border-zinc-500/30'
+                                          }`}
+                                        >
+                                          {status}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             ))}
                           </div>
-                          <p className="text-center text-[10px] text-zinc-600 mt-4 uppercase tracking-widest">Main Event Fighters</p>
+                          <p className="text-center text-[10px] text-zinc-600 mt-6 uppercase tracking-widest">Main Event Fighter Profiles</p>
                         </motion.div>
                       )}
                     </AnimatePresence>
