@@ -22,11 +22,44 @@ export interface UFCEvent {
   sourceUrl?: string;
 }
 
+const CACHE_KEY = "ufc_events_cache";
+const CACHE_TIME_KEY = "ufc_events_cache_time";
+const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+
+export function getCachedEvents(): UFCEvent[] | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+    
+    if (cached && cachedTime) {
+      const now = Date.now();
+      const age = now - parseInt(cachedTime);
+      
+      if (age < CACHE_DURATION) {
+        return JSON.parse(cached);
+      }
+    }
+  } catch (e) {
+    console.error("Error reading cache:", e);
+  }
+  return null;
+}
+
+function saveEventsToCache(events: UFCEvent[]) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(events));
+    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+  } catch (e) {
+    console.error("Error saving cache:", e);
+  }
+}
+
 export async function fetchUpcomingUFCEvents(): Promise<UFCEvent[]> {
   const model = "gemini-3-flash-preview";
   const currentDate = new Date().toISOString().split('T')[0];
   
   const prompt = `Find the upcoming UFC events starting from today (${currentDate}). 
+  Use Google Search to find real, scheduled UFC events (like UFC 300, UFC Fight Night).
   For each event, provide:
   1. Event Name (e.g., UFC 300)
   2. Date and Time (including timezone)
@@ -39,7 +72,8 @@ export async function fetchUpcomingUFCEvents(): Promise<UFCEvent[]> {
   
   Return the data as a JSON array of objects with keys: name, date, time, location, mainEvent, fighters (array of {name, imageUrl, record}). 
   If no image URL is found, leave imageUrl as null.
-  Ensure the dates are in the future relative to ${currentDate}.`;
+  Ensure the dates are in the future relative to ${currentDate}.
+  If there are no events scheduled, return an empty array [].`;
 
   try {
     const response = await ai.models.generateContent({
@@ -51,13 +85,43 @@ export async function fetchUpcomingUFCEvents(): Promise<UFCEvent[]> {
       },
     });
 
-    const text = response.text;
-    if (!text) return [];
+    const text = response.text?.trim();
+    if (!text || text === "[]" || text === "null") {
+      const cached = getCachedEvents();
+      if (cached) return cached;
+      throw new Error("The AI returned an empty list of events. This can happen if the search grounding didn't find any upcoming fights for the current date.");
+    }
     
-    const events = JSON.parse(text);
-    return events;
-  } catch (error) {
-    console.error("Error fetching UFC events:", error);
-    return [];
+    try {
+      const events = JSON.parse(text);
+      if (!Array.isArray(events)) {
+        throw new Error("The AI returned data in an invalid format (not an array).");
+      }
+      if (events.length === 0) {
+        const cached = getCachedEvents();
+        if (cached) return cached;
+        throw new Error("The AI found no upcoming events.");
+      }
+      
+      saveEventsToCache(events);
+      return events;
+    } catch (parseError: any) {
+      console.error("JSON Parse Error:", text);
+      const cached = getCachedEvents();
+      if (cached) return cached;
+      throw new Error(`Failed to parse AI response: ${parseError.message}`);
+    }
+  } catch (error: any) {
+    console.error("Gemini Service Error:", error);
+    
+    // Fallback to cache on any error (like 429)
+    const cached = getCachedEvents();
+    if (cached) {
+      console.log("Returning cached events due to error");
+      return cached;
+    }
+    
+    const message = error?.message || error?.toString() || "Unknown error";
+    throw new Error(message);
   }
 }

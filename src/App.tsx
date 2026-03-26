@@ -25,12 +25,16 @@ export default function App() {
       const data = await fetchUpcomingUFCEvents();
       setEvents(data);
     } catch (err: any) {
-      if (err?.message?.includes('GEMINI_API_KEY')) {
-        setError('API Key Missing: Please configure GEMINI_API_KEY in your environment or GitHub Secrets.');
+      console.error('App Load Error:', err);
+      const errorMessage = err?.message || String(err);
+      
+      if (errorMessage.includes('429') || errorMessage.includes('RESOURCE_EXHAUSTED')) {
+        setError('Rate Limit Exceeded: Your API key has hit its limit for Google Search. Please wait 60 seconds and try again.');
+      } else if (errorMessage.includes('GEMINI_API_KEY')) {
+        setError('API Key Missing: Please check your GitHub Secrets configuration.');
       } else {
-        setError('Failed to fetch upcoming events. Please try again later.');
+        setError(errorMessage);
       }
-      console.error(err);
     } finally {
       setLoading(false);
     }
