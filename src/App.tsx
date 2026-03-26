@@ -132,292 +132,265 @@ export default function App() {
     event.mainEvent.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 100 }
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 font-sans selection:bg-red-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a0a0a] text-zinc-100 font-sans selection:bg-red-500/30">
       {/* Advanced Scroll Progress Bar */}
       <motion.div 
-        className="fixed top-0 left-0 right-0 h-1 bg-red-600 origin-left z-[100] shadow-[0_0_15px_#dc2626]"
+        className="fixed top-0 left-0 right-0 h-1 bg-red-600 origin-left z-[100]"
         style={{ scaleX }}
       />
 
-      {/* Futuristic Grid Background */}
-      <div className="fixed inset-0 grid-bg pointer-events-none opacity-40" />
-
-      {/* Background Glows */}
+      {/* Background Glow */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-red-900/10 blur-[150px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-zinc-900/20 blur-[150px] rounded-full" />
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-red-900/20 blur-[120px] rounded-full" />
+        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-zinc-900/20 blur-[120px] rounded-full" />
       </div>
 
       <main className="relative z-10 max-w-5xl mx-auto px-6 py-12">
-        {/* Futuristic Header */}
-        <header className="mb-16 text-center relative overflow-hidden py-8">
-          <div className="scanline" />
+        {/* Header */}
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+          <div>
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 100, damping: 15 }}
+              className="flex items-center gap-3 text-red-500 font-mono text-xs tracking-[0.3em] uppercase mb-2"
+            >
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  rotate: [0, 10, -10, 0]
+                }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 4, 
+                  ease: "easeInOut" 
+                }}
+              >
+                <Trophy size={14} />
+              </motion.div>
+              <motion.span
+                animate={{ 
+                  x: [-2, 2, -2],
+                  rotate: [-3, 3, -3]
+                }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 5, 
+                  ease: "easeInOut" 
+                }}
+                className="inline-block"
+              >
+                from Piyush
+              </motion.span>
+            </motion.div>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-5xl md:text-7xl font-bold tracking-tighter"
+            >
+              UFC <span className="text-zinc-500 italic">Upcoming</span>
+            </motion.h1>
+          </div>
           
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ 
-              duration: 1, 
-              type: "spring", 
-              bounce: 0.4 
-            }}
-            className="relative inline-block mb-6"
-          >
-            <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full animate-pulse" />
-            <div className="relative flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 border border-red-500/30 text-[10px] font-bold tracking-[0.3em] text-red-500 uppercase backdrop-blur-md">
-              <Trophy className="w-3 h-3 neon-glow-red" />
-              <span className="glitch-hover">From Piyush • Octagon Intel</span>
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-ping" />
-            </div>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, letterSpacing: "0.5em" }}
-            animate={{ opacity: 1, letterSpacing: "-0.02em" }}
-            transition={{ duration: 1.2, ease: "circOut" }}
-            className="text-7xl md:text-9xl font-black uppercase italic cyber-text leading-none"
-          >
-            UFC <span className="text-red-600">EVENTS</span>
-          </motion.h1>
-          
-          <motion.div
+          <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="mt-6 flex items-center justify-center gap-4 text-zinc-500 font-mono text-[10px] tracking-[0.4em] uppercase"
+            transition={{ delay: 0.2 }}
+            onClick={loadEvents}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-full hover:bg-zinc-800 transition-colors disabled:opacity-50"
           >
-            <div className="h-px w-8 bg-zinc-800" />
-            <span>Combat Stream // IST Time</span>
-            <div className="h-px w-8 bg-zinc-800" />
-          </motion.div>
-
-          {/* Search Bar */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1 }}
-            className="mt-12 max-w-md mx-auto relative group"
-          >
-            <div className="absolute -inset-1 bg-gradient-to-r from-red-600/20 to-transparent rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-red-500 transition-colors" />
-              <input 
-                type="text"
-                placeholder="PROBE FIGHTERS OR EVENTS..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-black/60 border border-zinc-800/50 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600/50 transition-all font-mono text-xs tracking-widest placeholder:text-zinc-800 backdrop-blur-sm"
-              />
-            </div>
-          </motion.div>
+            <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+            <span className="text-sm font-medium">Refresh</span>
+          </motion.button>
         </header>
 
-        {/* Event List */}
+        {/* Search Bar */}
         <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-8 relative"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+          className="relative mb-12"
         >
-          {/* Top/Bottom Fade Masks */}
-          <div className="absolute -top-12 left-0 right-0 h-24 bg-gradient-to-b from-[#050505] to-transparent z-20 pointer-events-none" />
-          <div className="absolute -bottom-12 left-0 right-0 h-24 bg-gradient-to-t from-[#050505] to-transparent z-20 pointer-events-none" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={20} />
+          <input
+            type="text"
+            placeholder="Search events or fighters..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-red-500/50 transition-all placeholder:text-zinc-600"
+          />
+        </motion.div>
 
+        {/* Content with Scroll Fade Mask */}
+        <div className="relative">
+          {/* Top Fade Mask */}
+          <div className="absolute -top-4 left-0 right-0 h-12 bg-gradient-to-b from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
+          
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-24 gap-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-red-600/20 blur-2xl animate-pulse" />
-                <Loader2 className="w-16 h-16 text-red-600 animate-spin relative z-10" />
-              </div>
-              <p className="text-zinc-600 font-mono text-[10px] tracking-[0.5em] animate-pulse">SYNCING WITH OCTAGON DATABASE...</p>
-            </div>
-          ) : error ? (
-            <motion.div 
-              variants={itemVariants}
-              className="glass-card neon-border-red p-10 rounded-3xl text-center relative overflow-hidden"
-            >
-              <div className="scanline" />
-              <p className="text-red-500 font-mono text-sm mb-8 tracking-wider">{error}</p>
-              <button 
-                onClick={loadEvents}
-                className="group relative inline-flex items-center gap-3 px-8 py-4 bg-red-600 text-white rounded-xl font-black uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(220,38,38,0.5)] active:scale-95"
-              >
-                <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-                RE-ESTABLISH LINK
-              </button>
-            </motion.div>
-          ) : filteredEvents.length === 0 ? (
-            <div className="text-center py-24 text-zinc-700 font-mono text-xs tracking-[0.3em]">
-              NO MATCHING SIGNALS DETECTED
-            </div>
-          ) : (
-            <div className="grid gap-8">
-              <AnimatePresence mode="popLayout">
-                {filteredEvents.map((event, index) => {
-                  const ist = convertToIST(event.date, event.time);
-                  const isExpanded = expandedEvent === event.name;
-
-                  return (
-                    <motion.div
-                      key={event.name}
-                      layout
-                      variants={itemVariants}
-                      className={`group relative glass-card rounded-3xl overflow-hidden transition-all duration-700 ${isExpanded ? 'neon-border-red ring-1 ring-red-500/30' : 'hover:border-red-500/20'}`}
-                    >
-                      <div className="scanline opacity-5" />
-                      
-                      {/* Event Header Card */}
-                      <div 
-                        onClick={() => toggleExpand(event.name)}
-                        className="p-8 md:p-10 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-4 mb-4">
-                            <div className="px-3 py-1 rounded-sm bg-red-600 text-[9px] font-black tracking-[0.2em] uppercase shadow-[0_0_10px_rgba(220,38,38,0.4)]">
-                              {event.name.includes('UFC') ? 'PPV' : 'FIGHT NIGHT'}
-                            </div>
-                            <div className="flex items-center gap-2 text-zinc-500 font-mono text-[10px] uppercase tracking-[0.2em]">
-                              <Calendar className="w-3 h-3 text-red-500" />
-                              {ist.date}
-                            </div>
-                          </div>
-                          
-                          <h3 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic group-hover:text-red-500 transition-colors duration-500">
-                            {event.mainEvent}
-                          </h3>
-                          
-                          <div className="mt-6 flex flex-wrap items-center gap-6 text-[10px] text-zinc-400 font-mono tracking-widest uppercase">
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
-                              <Clock className="w-3.5 h-3.5 text-red-500 neon-glow-red" />
-                              {ist.time} IST
-                            </div>
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
-                              <MapPin className="w-3.5 h-3.5 text-red-500 neon-glow-red" />
-                              {event.location}
-                            </div>
-                          </div>
+          <div className="flex flex-col items-center justify-center py-32 gap-4">
+            <Loader2 className="animate-spin text-red-500" size={48} />
+            <p className="text-zinc-500 font-mono animate-pulse">Scanning the Octagon...</p>
+          </div>
+        ) : error ? (
+          <div className="bg-red-900/10 border border-red-900/20 rounded-2xl p-8 text-center">
+            <p className="text-red-400 mb-4">{error}</p>
+            <button onClick={loadEvents} className="text-zinc-100 underline underline-offset-4">Try again</button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6">
+            <AnimatePresence mode="popLayout">
+              {filteredEvents.map((event, index) => {
+                const ist = convertToIST(event.date, event.time);
+                const isExpanded = expandedEvent === event.name;
+                return (
+                  <motion.div
+                    key={event.name + index}
+                    layout
+                    initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50, scale: 0.9, rotate: index % 2 === 0 ? -2 : 2 }}
+                    whileInView={{ opacity: 1, x: 0, scale: 1, rotate: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ 
+                      type: "spring",
+                      stiffness: 100,
+                      damping: 20,
+                      delay: index * 0.05 
+                    }}
+                    whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                    onClick={() => toggleExpand(event.name)}
+                    className={`group relative bg-zinc-900/40 border border-zinc-800/50 rounded-3xl p-6 md:p-8 hover:bg-zinc-900/60 hover:border-zinc-700 transition-all overflow-hidden cursor-pointer ${isExpanded ? 'ring-2 ring-red-500/50' : ''}`}
+                  >
+                    {/* Event Card Content */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className="px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-bold uppercase tracking-widest rounded-full border border-red-500/20">
+                            Upcoming
+                          </span>
+                          <span className="text-zinc-500 text-xs font-mono">
+                            {event.location}
+                          </span>
                         </div>
-
-                        <div className="flex items-center gap-6">
-                          <div className="text-right hidden md:block">
-                            <p className="text-[9px] text-zinc-600 font-mono uppercase tracking-[0.3em] mb-1">Status</p>
-                            <p className="text-xs font-black text-green-500 uppercase tracking-widest animate-pulse">Active Signal</p>
-                          </div>
-                          <motion.div 
-                            animate={{ 
-                              rotate: isExpanded ? 180 : 0,
-                              scale: isExpanded ? 1.1 : 1,
-                              borderColor: isExpanded ? "#dc2626" : "#27272a"
-                            }}
-                            className="w-14 h-14 rounded-2xl bg-black/60 border border-zinc-800 flex items-center justify-center group-hover:border-red-500 transition-all duration-500 backdrop-blur-md shadow-inner"
-                          >
-                            <RefreshCw className={`w-5 h-5 text-zinc-500 group-hover:text-red-500 transition-colors ${isExpanded ? 'animate-spin-slow' : ''}`} />
-                          </motion.div>
+                        <h2 className="text-2xl md:text-3xl font-bold mb-2 group-hover:text-red-500 transition-colors">
+                          {event.name}
+                        </h2>
+                        <p className="text-zinc-400 text-lg font-medium italic mb-4">
+                          {event.mainEvent}
+                        </p>
+                        
+                        {/* Fighter Records on Card */}
+                        <div className="flex flex-wrap gap-x-4 gap-y-2">
+                          {event.fighters?.map((f, i) => (
+                            <div key={i} className="flex items-center gap-2 bg-zinc-800/50 px-3 py-1 rounded-lg border border-zinc-700/50">
+                              <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-tighter">{f.name}</span>
+                              <span className="text-xs font-mono text-red-500 font-bold">{f.record}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
 
-                      {/* Expanded Content: Fight Card */}
-                      <AnimatePresence>
-                        {isExpanded && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                            className="border-t border-red-500/10 bg-gradient-to-b from-red-500/5 to-transparent relative overflow-hidden"
-                          >
-                            <div className="p-8 md:p-12">
-                              <div className="flex items-center gap-4 mb-10">
-                                <div className="h-px flex-1 bg-gradient-to-r from-transparent via-red-500/30 to-red-500/50" />
-                                <span className="text-[10px] font-black font-mono text-red-500 uppercase tracking-[0.5em]">Battle Roster</span>
-                                <div className="h-px flex-1 bg-gradient-to-l from-transparent via-red-500/30 to-red-500/50" />
+                      <div className="flex flex-col gap-4 md:text-right min-w-[200px]">
+                        <div className="space-y-1">
+                          <div className="flex items-center md:justify-end gap-2 text-zinc-500 text-xs uppercase tracking-wider font-semibold">
+                            <Calendar size={14} />
+                            Date (IST)
+                          </div>
+                          <div className="text-xl font-bold">{ist.date}</div>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <div className="flex items-center md:justify-end gap-2 text-zinc-500 text-xs uppercase tracking-wider font-semibold">
+                            <Clock size={14} />
+                            Time (IST)
+                          </div>
+                          <div className="text-xl font-bold text-red-500">{ist.time}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Expanded Content: Fighter Details */}
+                    <AnimatePresence>
+                      {isExpanded && event.fighters && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="mt-8 pt-8 border-t border-zinc-800 overflow-hidden"
+                        >
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
+                            {event.fighters.map((fighter, fIndex) => (
+                              <div key={fighter.name + fIndex} className="bg-zinc-800/30 p-6 rounded-2xl border border-zinc-700/50">
+                                <div className="flex justify-between items-start mb-4">
+                                  <div>
+                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Fighter</p>
+                                    <h3 className="text-xl font-bold text-white">{fighter.name}</h3>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Weight Class</p>
+                                    <p className="text-sm font-medium text-zinc-300">{fighter.weightClass}</p>
+                                  </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="bg-zinc-900/50 p-3 rounded-xl border border-zinc-800">
+                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Record</p>
+                                    <p className="text-lg font-mono font-bold text-red-500">{fighter.record}</p>
+                                  </div>
+                                  <div className="bg-zinc-900/50 p-3 rounded-xl border border-zinc-800">
+                                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Last 5</p>
+                                    <div className="flex gap-1 mt-1">
+                                      {fighter.lastFive.split('-').map((status, sIndex) => (
+                                        <span 
+                                          key={sIndex}
+                                          className={`w-5 h-5 flex items-center justify-center rounded text-[10px] font-bold ${
+                                            status === 'W' ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 
+                                            status === 'L' ? 'bg-red-500/20 text-red-500 border border-red-500/30' : 
+                                            'bg-zinc-500/20 text-zinc-500 border border-zinc-500/30'
+                                          }`}
+                                        >
+                                          {status}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
+                            ))}
+                          </div>
+                          <p className="text-center text-[10px] text-zinc-600 mt-6 uppercase tracking-widest">Main Event Fighter Profiles</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                              <div className="grid gap-6">
-                                {event.fighters.map((fight, fIndex) => (
-                                  <motion.div 
-                                    key={fIndex}
-                                    initial={{ opacity: 0, x: -30 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: fIndex * 0.08 + 0.2 }}
-                                    className="flex items-center justify-between p-6 rounded-2xl bg-black/40 border border-white/5 hover:border-red-500/40 hover:bg-red-500/5 transition-all duration-500 group/fight relative overflow-hidden"
-                                  >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-red-600/0 via-red-600/0 to-red-600/5 translate-x-[-100%] group-hover/fight:translate-x-[100%] transition-transform duration-1000" />
-                                    
-                                    <div className="flex-1 text-right pr-6 relative z-10">
-                                      <p className="text-lg font-black uppercase tracking-tight italic group-hover/fight:text-red-500 transition-colors">{fight.name.split(' vs ')[0] || fight.name}</p>
-                                      <div className="flex justify-end gap-1.5 mt-2">
-                                        {fight.lastFive.split('-').map((res, i) => (
-                                          <div key={i} className={`w-2 h-2 rounded-full shadow-[0_0_5px] ${res === 'W' ? 'bg-green-500 shadow-green-500/50' : 'bg-red-600 shadow-red-600/50'}`} />
-                                        ))}
-                                      </div>
-                                    </div>
+                    {/* Decorative Element */}
+                    <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-10 transition-opacity">
+                      <Trophy size={120} className="text-white rotate-12" />
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
 
-                                    <div className="flex flex-col items-center px-8 border-x border-white/10 relative z-10">
-                                      <div className="text-[12px] font-black text-red-600 italic animate-pulse">VS</div>
-                                      <div className="text-[8px] text-zinc-600 font-mono mt-2 uppercase tracking-widest">{fight.weightClass}</div>
-                                    </div>
-
-                                    <div className="flex-1 text-left pl-6 relative z-10">
-                                      <p className="text-lg font-black uppercase tracking-tight italic group-hover/fight:text-red-500 transition-colors">{fight.name.split(' vs ')[1] || 'TBD'}</p>
-                                      <div className="flex justify-start gap-1.5 mt-2">
-                                        {fight.lastFive.split('-').map((res, i) => (
-                                          <div key={i} className={`w-2 h-2 rounded-full shadow-[0_0_5px] ${res === 'W' ? 'bg-green-500 shadow-green-500/50' : 'bg-red-600 shadow-red-600/50'}`} />
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </motion.div>
-                                ))}
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Futuristic Footer */}
-        <footer className="mt-32 pt-16 border-t border-zinc-900/50 text-center relative">
-          <div className="scanline opacity-5" />
-          <div className="flex justify-center gap-12 mb-10">
-            <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 2 }} className="w-1.5 h-1.5 rounded-full bg-red-600 shadow-[0_0_10px_#dc2626]" />
-            <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 0.5 }} className="w-1.5 h-1.5 rounded-full bg-red-600 shadow-[0_0_10px_#dc2626]" />
-            <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 2, delay: 1 }} className="w-1.5 h-1.5 rounded-full bg-red-600 shadow-[0_0_10px_#dc2626]" />
+            {filteredEvents.length === 0 && (
+              <div className="text-center py-20 border border-dashed border-zinc-800 rounded-3xl">
+                <p className="text-zinc-500">No events found matching your search.</p>
+              </div>
+            )}
           </div>
-          <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-[0.6em] mb-4">
-            Curated by <span className="text-red-500 font-black italic">Piyush</span> for the Octagon Fans
-          </p>
-          <div className="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/5 text-zinc-800 font-mono text-[8px] uppercase tracking-[0.3em]">
-            © 2026 Combat Intel Systems // Neural Link Established
-          </div>
-        </footer>
+        )}
+
+          {/* Bottom Fade Mask */}
+          <div className="absolute -bottom-4 left-0 right-0 h-24 bg-gradient-to-t from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
+        </div>
       </main>
+
+      <footer className="relative z-10 max-w-5xl mx-auto px-6 py-12 border-t border-zinc-900 text-center text-zinc-600 text-xs uppercase tracking-[0.3em]">
+        <p>© {new Date().getFullYear()} UFC Event Tracker</p>
+        <p className="mt-2 text-[10px]">Curated by Piyush for the Octagon Fans</p>
+      </footer>
     </div>
   );
 }
