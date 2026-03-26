@@ -1,12 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
 
-const API_KEY = process.env.GEMINI_API_KEY;
+let aiInstance: GoogleGenAI | null = null;
 
-if (!API_KEY) {
-  throw new Error("GEMINI_API_KEY is not defined in the environment.");
+function getAI() {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is missing. Please configure it in your environment or GitHub Secrets.");
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
 }
-
-const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 export interface UFCEvent {
   name: string;
@@ -58,7 +63,7 @@ export async function fetchUpcomingUFCEvents(): Promise<UFCEvent[]> {
   const model = "gemini-3-flash-preview";
   const currentDate = new Date().toISOString().split('T')[0];
   
-  const prompt = `Find the upcoming UFC events starting from today (${currentDate}). 
+  const prompt = `Find the upcoming UFC events starting from today (${currentDate}) and for the next 3 months. 
   Use Google Search to find real, scheduled UFC events (like UFC 300, UFC Fight Night).
   For each event, provide:
   1. Event Name (e.g., UFC 300)
@@ -76,6 +81,7 @@ export async function fetchUpcomingUFCEvents(): Promise<UFCEvent[]> {
   If there are no events scheduled, return an empty array [].`;
 
   try {
+    const ai = getAI();
     const response = await ai.models.generateContent({
       model: model,
       contents: prompt,
@@ -86,21 +92,28 @@ export async function fetchUpcomingUFCEvents(): Promise<UFCEvent[]> {
     });
 
     const text = response.text?.trim();
-    if (!text || text === "[]" || text === "null") {
+    
+    // Check if the response is empty or just an empty array string
+    if (!text || text === "[]" || text === "null" || text === "{}") {
       const cached = getCachedEvents();
-      if (cached) return cached;
-      throw new Error("The AI returned an empty list of events. This can happen if the search grounding didn't find any upcoming fights for the current date.");
+      if (cached && cached.length > 0) {
+        console.log("AI returned empty, using cached events.");
+        return cached;
+      }
+      throw new Error("The AI couldn't find any upcoming UFC events. This might be due to a search grounding issue or no events being scheduled soon.");
     }
     
     try {
       const events = JSON.parse(text);
+      
       if (!Array.isArray(events)) {
-        throw new Error("The AI returned data in an invalid format (not an array).");
+        throw new Error("Invalid response format: expected an array of events.");
       }
+
       if (events.length === 0) {
         const cached = getCachedEvents();
-        if (cached) return cached;
-        throw new Error("The AI found no upcoming events.");
+        if (cached && cached.length > 0) return cached;
+        throw new Error("No upcoming UFC events found in the search results.");
       }
       
       saveEventsToCache(events);
@@ -108,20 +121,20 @@ export async function fetchUpcomingUFCEvents(): Promise<UFCEvent[]> {
     } catch (parseError: any) {
       console.error("JSON Parse Error:", text);
       const cached = getCachedEvents();
-      if (cached) return cached;
-      throw new Error(`Failed to parse AI response: ${parseError.message}`);
+      if (cached && cached.length > 0) return cached;
+      throw new Error(`Failed to process event data: ${parseError.message}`);
     }
   } catch (error: any) {
     console.error("Gemini Service Error:", error);
     
-    // Fallback to cache on any error (like 429)
+    // Fallback to cache on any error (like 429 or network issues)
     const cached = getCachedEvents();
-    if (cached) {
-      console.log("Returning cached events due to error");
+    if (cached && cached.length > 0) {
+      console.log("Returning cached events due to error:", error.message);
       return cached;
     }
     
-    const message = error?.message || error?.toString() || "Unknown error";
+    const message = error?.message || error?.toString() || "Unknown error occurred while fetching events.";
     throw new Error(message);
   }
 }
