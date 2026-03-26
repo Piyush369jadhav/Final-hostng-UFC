@@ -24,8 +24,13 @@ export default function App() {
     try {
       const data = await fetchUpcomingUFCEvents();
       setEvents(data);
-    } catch (err) {
-      setError('Failed to fetch upcoming events. Please try again later.');
+    } catch (err: any) {
+      if (err?.message?.includes('GEMINI_API_KEY')) {
+        setError('API Key Missing: Please configure GEMINI_API_KEY in your environment or GitHub Secrets.');
+      } else {
+        setError('Failed to fetch upcoming events. Please try again later.');
+      }
+      console.error(err);
     } finally {
       setLoading(false);
     }
